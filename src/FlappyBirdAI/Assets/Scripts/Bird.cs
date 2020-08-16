@@ -3,27 +3,23 @@ using UnityEngine;
 
 public class Bird : MonoBehaviour
 {
-	[SerializeField] private float JumpForce = 10f;
+	[SerializeField] private float JumpForce = 5f;
 	[SerializeField] private double JumpDelta = 250.0;
 
 	private Rigidbody body;
 
 	private DateTime jumpTime;
-	private bool jumped = false;
+
+	public event Action<Bird> Terminated;
 
 	private void Start()
 	{
 		body = GetComponent<Rigidbody>();
+		jumpTime = DateTime.Now.AddMilliseconds(-JumpDelta);
 	}
 
 	public void Update()
 	{
-		if (jumped)
-		{
-			var delta = (DateTime.Now - jumpTime).TotalMilliseconds;
-			jumped = delta < JumpDelta;
-		}
-
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			Jump();
@@ -32,15 +28,14 @@ public class Bird : MonoBehaviour
 
 	public void Jump()
 	{
-		if (jumped) return;
+		if ((DateTime.Now - jumpTime).TotalMilliseconds < JumpDelta) return;
 		body.velocity = new Vector3(0f, JumpForce, 0f);
-		jumped = true;
 		jumpTime = DateTime.Now;
 	}
 
 	public void Terminate()
 	{
-		Debug.Log("You have been Terminated.");
+		Terminated?.Invoke(this);
 		Destroy(gameObject);
 	}
 }
