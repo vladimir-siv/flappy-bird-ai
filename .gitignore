@@ -2,17 +2,17 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-src/FlappyBirdAI/[Ll]ibrary/
-src/FlappyBirdAI/[Tt]emp/
-src/FlappyBirdAI/[Oo]bj/
-src/FlappyBirdAI/[Bb]uild/
-src/FlappyBirdAI/[Bb]uilds/
-src/FlappyBirdAI/[Ll]ogs/
-src/FlappyBirdAI/[Uu]ser[Ss]ettings/
+/src/FlappyBirdAI/[Ll]ibrary/
+/src/FlappyBirdAI/[Tt]emp/
+/src/FlappyBirdAI/[Oo]bj/
+/src/FlappyBirdAI/[Bb]uild/
+/src/FlappyBirdAI/[Bb]uilds/
+/src/FlappyBirdAI/[Ll]ogs/
+/src/FlappyBirdAI/[Uu]ser[Ss]ettings/
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
-src/FlappyBirdAI/[Mm]emoryCaptures/
+/src/FlappyBirdAI/[Mm]emoryCaptures/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
