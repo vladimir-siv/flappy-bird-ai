@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Pipe : MonoBehaviour
 {
@@ -46,6 +48,7 @@ public class Pipe : MonoBehaviour
 	{
 		var body = GetComponent<Rigidbody>();
 		body.velocity = new Vector3(-Velocity, 0f, 0f);
+		Pipes.Enqueue(this);
 	}
 
 	private void OnTriggerEnter(Collider other)
@@ -54,5 +57,36 @@ public class Pipe : MonoBehaviour
 		{
 			Destroy(gameObject);
 		}
+	}
+
+	private void OnTriggerExit(Collider other)
+	{
+		if (other.tag == "Bird")
+		{
+			Pipes.Dequeue(this);
+		}
+	}
+}
+
+public static class Pipes
+{
+	private static readonly Queue<Pipe> Collection = new Queue<Pipe>();
+
+	public static void Clear() => Collection.Clear();
+
+	public static Pipe Peek()
+	{
+		if (Collection.Count == 0) return null;
+		return Collection.Peek();
+	}
+
+	public static void Enqueue(Pipe pipe)
+	{
+		Collection.Enqueue(pipe);
+	}
+	
+	public static void Dequeue(Pipe pipe)
+	{
+		if (Peek() == pipe) Collection.Dequeue();
 	}
 }

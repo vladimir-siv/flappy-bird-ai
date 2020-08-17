@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private GameObject Bird = null;
 	[SerializeField] private GameObject Pipe = null;
 
-	[SerializeField] private int BirdCount = 1;
+	[SerializeField] private int BirdCount = 100;
 
 	[SerializeField] private float PipeCenterTolerance = 60f;
 	[SerializeField] private float PipeMiddleSpaceMin = 3f;
@@ -23,25 +23,35 @@ public class GameController : MonoBehaviour
 	private void OnBirdTerminated(Bird bird)
 	{
 		if (--birdsLeft > 0) return;
+		Agents.Cycle();
 		SceneManager.LoadScene("Main");
 	}
 
 	private void Start()
 	{
+		GILibrary.Init();
+		Agents.Create(BirdCount);
+
 		birdsLeft = BirdCount;
 
 		for (var i = 0; i < BirdCount; ++i)
 		{
-			Instantiate(Bird).GetComponent<Bird>().Terminated += OnBirdTerminated;
+			var bird = Instantiate(Bird).GetComponent<Bird>();
+			bird.Terminated += OnBirdTerminated;
+			Agents.AssignBird(bird, i);
 		}
 
 		pipeRespawnTimeout = 0f;
 		pipeSpawnTime = DateTime.Now;
+
+		Pipes.Clear();
+		Evolution.Begin();
 	}
 
 	private void Update()
 	{
 		SpawnPipe();
+		Agents.Think();
 	}
 
 	public void SpawnPipe()
@@ -58,5 +68,10 @@ public class GameController : MonoBehaviour
 
 		pipe.UpperHeight = pipeHeight - (pipeCenter + pipeSpace / 2f);
 		pipe.LowerHeight = pipeCenter - pipeSpace / 2f;
+	}
+
+	private void OnApplicationQuit()
+	{
+		GILibrary.Release();
 	}
 }

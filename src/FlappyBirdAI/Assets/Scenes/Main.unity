@@ -650,7 +650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Bird: {fileID: 8484146078844628392, guid: 9cf16017dd6d93940a51bfbaa792e6a1, type: 3}
   Pipe: {fileID: 2120050210151844358, guid: d2dd65b8dcb7b8e469d0a38b01788c23, type: 3}
-  BirdCount: 1
+  BirdCount: 100
   PipeCenterTolerance: 60
   PipeMiddleSpaceMin: 3
   PipeMiddleSpaceMax: 4
