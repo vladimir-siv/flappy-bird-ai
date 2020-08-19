@@ -21,6 +21,7 @@ public class GameController : MonoBehaviour
 	private int birdsLeft;
 	private DateTime pipeSpawnTime;
 	private float pipeRespawnTimeout;
+	private bool saveRequest;
 
 	private void OnBirdTerminated(Bird bird)
 	{
@@ -54,6 +55,12 @@ public class GameController : MonoBehaviour
 
 	private void Update()
 	{
+		if (saveRequest ^ Input.GetKeyDown(KeyCode.S))
+		{
+			saveRequest = !saveRequest;
+			if (saveRequest) Agents.SaveExisting();
+		}
+
 		SpawnPipe();
 		Agents.Think();
 	}

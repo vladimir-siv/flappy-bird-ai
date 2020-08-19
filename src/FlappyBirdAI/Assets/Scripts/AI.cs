@@ -128,6 +128,21 @@ public static class Agents
 		}
 	}
 
+	public static void SaveExisting()
+	{
+		var k = 0;
+
+		foreach (var agent in agents)
+		{
+			if (agent.Bird != null)
+			{
+				agent.Brain.Save(AgentManager.UserPath(k++));
+			}
+		}
+
+		UnityEngine.Debug.Log("Current live agents saved.");
+	}
+
 	private static void Preload(string file)
 	{
 		var brain = new BasicBrain(Prototype);
@@ -231,6 +246,8 @@ public static class AgentManager
 	public static readonly string Current = DateTime.Now.ToString("dd.MM.yyyy. HH-mm-ss");
 
 	public static string SavePath => Path.Combine(Current, $"bird-gen{((int)Agents.CurrentGeneration):0000}.sav");
+
+	public static string UserPath(int k) => Path.Combine(Current, $"user-bird-{k}.sav");
 
 	static AgentManager()
 	{
