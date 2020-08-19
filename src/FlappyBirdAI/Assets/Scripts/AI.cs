@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using UnityEngine;
-
 using GrandIntelligence;
 
 public static class GILibrary
@@ -36,8 +34,9 @@ public static class Evolution
 
 	public static float Progress()
 	{
-		var time = (float)(DateTime.Now - StartTime).TotalSeconds;
-		return Mathf.Pow(time, 4f);
+		var time = (float)(DateTime.Now - StartTime).TotalMilliseconds;
+		return time;
+		//return Mathf.Pow(time, 4f) + 1f;
 	}
 }
 
@@ -54,9 +53,8 @@ public static class Agents
 		if (agents != null) return;
 
 		prototype = new NeuralBuilder(5u);
-		prototype.FCLayer(8u, ActivationFunction.RELU);
-		prototype.FCLayer(4u, ActivationFunction.RELU);
-		prototype.FCLayer(1u, ActivationFunction.LTU);
+		prototype.FCLayer(8u, ActivationFunction.ELU);
+		prototype.FCLayer(2u, ActivationFunction.Sigmoid);
 
 		agents = new List<Agent>(agentCount);
 
@@ -72,10 +70,10 @@ public static class Agents
 		evolution = new DarwinBgea
 		(
 			first,
-			Selection.RandFit(),
+			Selection.RandFit(1u),
 			BasicBrain.Mating(first.Size, ((BasicBrain)first[0u]).NeuralNetwork.Params),
 			generations: 1000u,
-			mutation: 1.0f
+			mutation: 10.0f
 		);
 	}
 	public static void Release()
@@ -161,17 +159,28 @@ public sealed class Agent
 	{
 		if (Bird == null) return;
 
-		inputCache[0] = Bird.transform.position.y / 30f;
+		inputCache[0] = (Bird.transform.position.y - 25.5f) / 9f;
 		inputCache[1] = Bird.body.velocity.y / 10f;
-		inputCache[2] = (nearest?.transform.position.x ?? 0f) / 30f;
-		inputCache[3] = (nearest?.UpperHeight ?? 0f) / 10f;
-		inputCache[4] = (nearest?.LowerHeight ?? 0f) / 10f;
+
+		if (nearest != null)
+		{
+			inputCache[2] = (nearest.transform.position.x - 20.5f) / 14f;
+			inputCache[3] = (nearest.UpperY - 25.5f) / 9f;
+			inputCache[4] = (nearest.LowerY - 25.5f) / 9f;
+		}
+		else
+		{
+			inputCache[2] = 1f;
+			inputCache[3] = 1f;
+			inputCache[4] = 0f;
+		}
 
 		Brain.NeuralNetwork.Input.Transfer(inputCache);
 		Brain.NeuralNetwork.Eval();
-		var output = Brain.NeuralNetwork.Output[0u];
+		var out1 = Brain.NeuralNetwork.Output[0u];
+		var out2 = Brain.NeuralNetwork.Output[1u];
 
-		if (output >= 0f) Bird.Jump();
+		if (out1 > out2) Bird.Jump();
 	}
 
 	private void BirdTerminated(Bird bird)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Pipe : MonoBehaviour
@@ -37,6 +36,9 @@ public class Pipe : MonoBehaviour
 			lowerPipe.RescaleY(value);
 		}
 	}
+
+	public float UpperY => upperPipe.position.y - upperPipe.localScale.y / 2f;
+	public float LowerY => lowerPipe.position.y + lowerPipe.localScale.y / 2f;
 
 	private void Awake()
 	{
