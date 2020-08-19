@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.IO;
+using System.Text;
 using GrandIntelligence;
 
 public static class GILibrary
@@ -36,7 +37,6 @@ public static class Evolution
 	{
 		var time = (float)(DateTime.Now - StartTime).TotalMilliseconds;
 		return time;
-		//return Mathf.Pow(time, 4f) + 1f;
 	}
 }
 
@@ -46,19 +46,32 @@ public static class Agents
 	private static DarwinBgea evolution = null;
 	private static NeuralBuilder prototype = null;
 
-	public static NeuralBuilder Prototype => prototype;
+	public static NeuralBuilder Prototype
+	{
+		get
+		{
+			if (prototype == null)
+			{
+				prototype = new NeuralBuilder(5u);
+				prototype.FCLayer(8u, ActivationFunction.ELU);
+				prototype.FCLayer(2u, ActivationFunction.Sigmoid);
+			}
 
-	public static uint CurrentGeneration => evolution.CurrentGeneration;
+			return prototype;
+		}
+	}
+	public static BasicBrain Best { get; set; }
+
+	public static uint CurrentGeneration => evolution?.CurrentGeneration ?? 0u;
 
 	public static void Create(int agentCount)
 	{
 		if (agents != null) return;
 
-		prototype = new NeuralBuilder(5u);
-		prototype.FCLayer(8u, ActivationFunction.ELU);
-		prototype.FCLayer(2u, ActivationFunction.Sigmoid);
-
 		agents = new List<Agent>(agentCount);
+
+		if (agentCount == 1) Preload(AgentManager.Chosen);
+		if (agentCount <= 1) return;
 
 		var first = new Population((uint)agentCount);
 
@@ -80,10 +93,10 @@ public static class Agents
 	}
 	public static void Release()
 	{
-		prototype.Dispose();
+		prototype?.Dispose();
 		prototype = null;
 
-		evolution.Dispose();
+		evolution?.Dispose();
 		evolution = null;
 
 		agents = null;
@@ -103,12 +116,23 @@ public static class Agents
 
 	public static void Cycle()
 	{
+		if (evolution == null) return;
+
+		Best.Save(AgentManager.SavePath);
+
 		evolution.Cycle();
 		
 		for (var i = 0; i < agents.Count; ++i)
 		{
 			agents[i].Brain = (BasicBrain)evolution.Generation[(uint)i];
 		}
+	}
+
+	private static void Preload(string file)
+	{
+		var brain = new BasicBrain(Prototype);
+		brain.Load(file);
+		agents.Add(new Agent(brain));
 	}
 }
 
@@ -157,6 +181,12 @@ public sealed class Agent
 		}
 	}
 
+	public Agent(BasicBrain brain)
+	{
+		if (brain == null) throw new ArgumentNullException(nameof(brain));
+		Brain = brain;
+	}
+
 	public void Think(Pipe nearest)
 	{
 		if (Bird == null) return;
@@ -190,5 +220,77 @@ public sealed class Agent
 		if (bird != this.bird) return;
 		Bird = null;
 		Brain.EvolutionValue = Evolution.Progress();
+		Agents.Best = Brain;
+	}
+}
+
+public static class AgentManager
+{
+	public const string Storage = @"D:\Desktop\projects\flappy-bird-ai\storage\";
+	public static readonly string Chosen = @"chosen\bird.sav";
+	public static readonly string Current = DateTime.Now.ToString("dd.MM.yyyy. HH-mm-ss");
+
+	public static string SavePath => Path.Combine(Current, $"bird-gen{((int)Agents.CurrentGeneration):0000}.sav");
+
+	static AgentManager()
+	{
+		Chosen = Path.Combine(Storage, Chosen);
+		Current = Path.Combine(Storage, Current);
+
+		if (!Directory.Exists(Current)) Directory.CreateDirectory(Current);
+	}
+
+	public static void Save(this BasicBrain brain, string file)
+	{
+		var sb = new StringBuilder();
+
+		sb.AppendLine(brain.EvolutionValue.ToString());
+
+		using (var it = new NeuralIterator())
+		{
+			for (var param = it.Begin(brain.NeuralNetwork); param != null; param = it.Next())
+			{
+				sb.Append($"{it.CurrentParam}:");
+				var data = param.GetData();
+				for (var i = 0; i < data.Length; ++i)
+				{
+					sb.Append($" {data[i]}");
+				}
+				sb.AppendLine();
+			}
+		}
+
+		File.WriteAllText(file, sb.ToString());
+	}
+
+	public static void Load(this BasicBrain brain, string file)
+	{
+		var lines = File.ReadAllLines(file);
+
+		var parameters = new float[lines.Length - 1][];
+
+		for (var i = 1; i < lines.Length; ++i)
+		{
+			var split = lines[i].Split(':');
+
+			var p = Convert.ToInt32(split[0]);
+
+			var vals = split[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+			parameters[p] = new float[vals.Length];
+
+			for (var j = 0; j < vals.Length; ++j)
+			{
+				parameters[p][j] = Convert.ToSingle(vals[j]);
+			}
+		}
+
+		using (var it = new NeuralIterator())
+		{
+			for (var param = it.Begin(brain.NeuralNetwork); param != null; param = it.Next())
+			{
+				param.Transfer(parameters[it.CurrentParam]);
+			}
+		}
 	}
 }
