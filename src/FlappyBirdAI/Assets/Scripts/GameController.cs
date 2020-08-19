@@ -1,12 +1,14 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
 	[SerializeField] private GameObject Bird = null;
 	[SerializeField] private GameObject Pipe = null;
+	[SerializeField] private Text GenerationText = null;
 
 	[SerializeField] private int BirdCount = 100;
 
@@ -46,6 +48,8 @@ public class GameController : MonoBehaviour
 
 		Pipes.Clear();
 		Evolution.Begin();
+
+		GenerationText.text = $"Generation: {Agents.CurrentGeneration}";
 	}
 
 	private void Update()

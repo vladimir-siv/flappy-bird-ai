@@ -48,6 +48,8 @@ public static class Agents
 
 	public static NeuralBuilder Prototype => prototype;
 
+	public static uint CurrentGeneration => evolution.CurrentGeneration;
+
 	public static void Create(int agentCount)
 	{
 		if (agents != null) return;
