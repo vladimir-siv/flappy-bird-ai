@@ -36,8 +36,8 @@ public static class Evolution
 
 	public static float Progress()
 	{
-		var time = (float)(DateTime.Now - StartTime).TotalMilliseconds;
-		return time;
+		var time = (float)(DateTime.Now - StartTime).TotalSeconds;
+		return Mathf.Pow(time / 100f, 4f);
 	}
 }
 
@@ -235,7 +235,12 @@ public sealed class Agent
 	{
 		if (bird != this.bird) return;
 		Bird = null;
-		Brain.EvolutionValue = Evolution.Progress();
+
+		var pipe = Pipes.Peek();
+		var pipeCenter = (pipe.UpperY + pipe.LowerY) / 2f;
+		var penalty = Mathf.Pow((bird.transform.position.y - pipeCenter) / 100f, 4f);
+		
+		Brain.EvolutionValue = Mathf.Max(Evolution.Progress() - penalty, 1e-10f);
 		Agents.Best = Brain;
 	}
 }
