@@ -10,7 +10,8 @@ public class Bird : MonoBehaviour
 
 	private DateTime jumpTime;
 
-	public event Action<Bird> Terminated;
+	public event Action<Bird> Termination;
+	public event Action Terminated;
 
 	private void Start()
 	{
@@ -27,7 +28,8 @@ public class Bird : MonoBehaviour
 
 	public void Terminate()
 	{
-		Terminated?.Invoke(this);
+		Termination?.Invoke(this);
 		Destroy(gameObject);
+		Terminated?.Invoke();
 	}
 }

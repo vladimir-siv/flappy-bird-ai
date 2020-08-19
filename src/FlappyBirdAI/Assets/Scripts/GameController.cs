@@ -23,7 +23,7 @@ public class GameController : MonoBehaviour
 	private float pipeRespawnTimeout;
 	private bool saveRequest;
 
-	private void OnBirdTerminated(Bird bird)
+	private void OnBirdTerminated()
 	{
 		if (--birdsLeft > 0) return;
 		Agents.Cycle();

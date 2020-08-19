@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UnityEngine;
 using GrandIntelligence;
 
 public static class GILibrary
@@ -88,7 +89,7 @@ public static class Agents
 			Selection.RandFit(1u),
 			BasicBrain.Mating(first.Size, ((BasicBrain)first[0u]).NeuralNetwork.Params),
 			generations: 1000u,
-			mutation: 10.0f
+			mutation: 15.0f
 		);
 	}
 	public static void Release()
@@ -140,7 +141,7 @@ public static class Agents
 			}
 		}
 
-		UnityEngine.Debug.Log("Current live agents saved.");
+		Debug.Log("Current live agents saved.");
 	}
 
 	private static void Preload(string file)
@@ -174,7 +175,7 @@ public sealed class Agent
 			if (value == bird) return;
 			bird = value;
 			if (bird == null) return;
-			bird.Terminated += BirdTerminated;
+			bird.Termination += BirdTermination;
 		}
 	}
 
@@ -230,7 +231,7 @@ public sealed class Agent
 		if (out1 > out2) Bird.Jump();
 	}
 
-	private void BirdTerminated(Bird bird)
+	private void BirdTermination(Bird bird)
 	{
 		if (bird != this.bird) return;
 		Bird = null;
