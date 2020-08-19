@@ -897,7 +897,7 @@ MonoBehaviour:
   PipeCenterTolerance: 60
   PipeMiddleSpaceMin: 3
   PipeMiddleSpaceMax: 4
-  PipeRespawnMinTimeout: 1.5
+  PipeRespawnMinTimeout: 1.75
   PipeRespawnMaxTimeout: 3
 --- !u!1 &1771872470
 GameObject:

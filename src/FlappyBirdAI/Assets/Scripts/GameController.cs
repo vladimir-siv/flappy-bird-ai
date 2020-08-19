@@ -15,7 +15,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private float PipeCenterTolerance = 60f;
 	[SerializeField] private float PipeMiddleSpaceMin = 3f;
 	[SerializeField] private float PipeMiddleSpaceMax = 4f;
-	[SerializeField] private float PipeRespawnMinTimeout = 1.5f;
+	[SerializeField] private float PipeRespawnMinTimeout = 1.75f;
 	[SerializeField] private float PipeRespawnMaxTimeout = 3f;
 
 	private int birdsLeft;
