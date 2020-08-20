@@ -154,7 +154,7 @@ public static class Agents
 
 public sealed class Agent
 {
-	private float[] inputCache = new float[5];
+	private readonly float[] inputCache = new float[5];
 
 	private BasicBrain brain = null;
 	public BasicBrain Brain
@@ -199,8 +199,7 @@ public sealed class Agent
 
 	public Agent(BasicBrain brain)
 	{
-		if (brain == null) throw new ArgumentNullException(nameof(brain));
-		Brain = brain;
+		Brain = brain ?? throw new ArgumentNullException(nameof(brain));
 	}
 
 	public void Think(Pipe nearest)

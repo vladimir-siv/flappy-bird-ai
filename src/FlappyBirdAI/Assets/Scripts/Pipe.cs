@@ -5,10 +5,36 @@ public class Pipe : MonoBehaviour
 {
 	[SerializeField] private float Velocity = 2.5f;
 
-	private Transform upperPipe;
-	private Transform lowerPipe;
+	private Transform _upperPipe = null;
+	private Transform upperPipe
+	{
+		get
+		{
+			if (_upperPipe == null) _upperPipe = transform.GetChild(0);
+			return _upperPipe;
+		}
+	}
+	private Transform _lowerPipe = null;
+	private Transform lowerPipe
+	{
+		get
+		{
+			if (_lowerPipe == null) _lowerPipe = transform.GetChild(1);
+			return _lowerPipe;
+		}
+	}
 
-	public float Height => GetComponent<BoxCollider>().size.y;
+	private BoxCollider _collider;
+	private BoxCollider Collider
+	{
+		get
+		{
+			if (_collider == null) _collider = GetComponent<BoxCollider>();
+			return _collider;
+		}
+	}
+
+	public float Height => Collider.size.y;
 
 	public float UpperHeight
 	{
@@ -40,12 +66,6 @@ public class Pipe : MonoBehaviour
 	public float UpperY => upperPipe.position.y - upperPipe.localScale.y / 2f;
 	public float LowerY => lowerPipe.position.y + lowerPipe.localScale.y / 2f;
 
-	private void Awake()
-	{
-		upperPipe = transform.GetChild(0);
-		lowerPipe = transform.GetChild(1);
-	}
-
 	private void Start()
 	{
 		var body = GetComponent<Rigidbody>();
@@ -55,7 +75,7 @@ public class Pipe : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.tag == "PipeBorder")
+		if (other.CompareTag("PipeBorder"))
 		{
 			Destroy(gameObject);
 		}
@@ -63,7 +83,7 @@ public class Pipe : MonoBehaviour
 
 	private void OnTriggerExit(Collider other)
 	{
-		if (other.tag == "Bird")
+		if (other.CompareTag("Bird"))
 		{
 			Pipes.Dequeue(this);
 		}

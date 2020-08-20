@@ -6,7 +6,15 @@ public class Bird : MonoBehaviour
 	[SerializeField] private float JumpForce = 5f;
 	[SerializeField] private double JumpDelta = 250.0;
 
-	public Rigidbody body => GetComponent<Rigidbody>(); //{ get; private set; }
+	private Rigidbody _body = null;
+	public Rigidbody body
+	{
+		get
+		{
+			if (_body == null) _body = GetComponent<Rigidbody>();
+			return _body;
+		}
+	}
 
 	private DateTime jumpTime;
 
@@ -15,7 +23,6 @@ public class Bird : MonoBehaviour
 
 	private void Start()
 	{
-		//body = GetComponent<Rigidbody>();
 		jumpTime = DateTime.Now.AddMilliseconds(-JumpDelta);
 	}
 
