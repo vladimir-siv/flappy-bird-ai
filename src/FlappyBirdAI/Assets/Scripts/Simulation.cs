@@ -30,7 +30,6 @@ public class Simulation
 
 	public void Start()
 	{
-
 		PopulateAgentsWithBrains();
 	}
 
