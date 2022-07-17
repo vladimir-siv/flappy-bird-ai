@@ -22,7 +22,7 @@ public class Simulation
 		(
 			firstGen,
 			Selection.RandFit(1u),
-			BasicBrain.Mating(firstGen.Size, ((BasicBrain)firstGen[0u]).NeuralNetwork.Params),
+			BasicBrain.SequentialEvenCrossover(firstGen.Size, ((BasicBrain)firstGen[0u]).NeuralNetwork.Params),
 			generations: 1000u,
 			mutation: 15.0f
 		);

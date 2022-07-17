@@ -7,7 +7,7 @@ public static class NeuralBrain
 
 	static NeuralBrain()
 	{
-		Prototype = new NeuralBuilder(5u);
+		Prototype = new NeuralBuilder(Shape.As2D(1u, 5u));
 		Prototype.FCLayer(8u, ActivationFunction.ELU);
 		Prototype.FCLayer(2u, ActivationFunction.Sigmoid);
 	}
