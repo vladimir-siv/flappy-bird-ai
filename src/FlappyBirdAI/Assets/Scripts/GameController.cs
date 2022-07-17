@@ -104,7 +104,7 @@ public class GameController : MonoBehaviour
 		UpdatePrompt();
 	}
 
-	public void SpawnPipe()
+	private void SpawnPipe()
 	{
 		if ((DateTime.Now - pipeSpawnTime).TotalSeconds < pipeRespawnTimeout) return;
 		var pipe = Instantiate(Pipe).GetComponent<Pipe>();
