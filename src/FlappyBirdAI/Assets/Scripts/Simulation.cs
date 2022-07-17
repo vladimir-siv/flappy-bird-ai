@@ -22,19 +22,16 @@ public class Simulation
 		(
 			firstGen,
 			Selection.RandFit(1u),
-			// BasicBrain.RandomFullCrossover(firstGen.Size, ((BasicBrain)firstGen[0u]).NeuralNetwork.Params),
 			BasicBrain.Mating(firstGen.Size, ((BasicBrain)firstGen[0u]).NeuralNetwork.Params),
 			generations: 1000u,
 			mutation: 15.0f
 		);
-
-		PopulateAgentsWithBrains();
 	}
 
-	public void End()
+	public void Start()
 	{
-		NeuralBrain.Prototype?.Dispose();
-		evolution?.Dispose();
+
+		PopulateAgentsWithBrains();
 	}
 
 	public void BirdTerminated(int birdsLeft)
@@ -52,5 +49,11 @@ public class Simulation
 		{
 			agents[i].Brain = (BasicBrain)evolution.Generation[(uint)i];
 		}
+	}
+
+	public void End()
+	{
+		NeuralBrain.Prototype?.Dispose();
+		evolution?.Dispose();
 	}
 }

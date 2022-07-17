@@ -16,7 +16,7 @@ public class GameController : MonoBehaviour
 
 	[SerializeField] private GameObject Bird = null;
 	[SerializeField] private GameObject Pipe = null;
-	[SerializeField] private Text GenerationText = null;
+	[SerializeField] private Text Prompt = null;
 
 	[SerializeField] private int BirdCount = 100;
 
@@ -29,10 +29,12 @@ public class GameController : MonoBehaviour
 	private int birdsLeft;
 	private DateTime pipeSpawnTime;
 	private float pipeRespawnTimeout;
+	private DateTime startTime;
 
 	private void OnBirdTerminated()
 	{
 		--birdsLeft;
+		UpdatePrompt();
 		simulation.BirdTerminated(birdsLeft);
 		if (birdsLeft > 0) return;
 		SceneManager.LoadScene("Main");
@@ -77,9 +79,14 @@ public class GameController : MonoBehaviour
 		pipeRespawnTimeout = 0f;
 		pipeSpawnTime = DateTime.Now;
 
+		startTime = DateTime.Now;
+
 		Pipes.Clear();
 
-		GenerationText.text = $"Generation: {generation++}";
+		++generation;
+		simulation.Start();
+
+		UpdatePrompt();
 	}
 
 	private void Update()
@@ -93,6 +100,8 @@ public class GameController : MonoBehaviour
 		for (var i = 0; i < agents.Count; ++i)
 			if (birds[i] != null)
 				agents[i].Think(pipe);
+
+		UpdatePrompt();
 	}
 
 	public void SpawnPipe()
@@ -109,6 +118,11 @@ public class GameController : MonoBehaviour
 
 		pipe.UpperHeight = pipeHeight - (pipeCenter + pipeSpace / 2f);
 		pipe.LowerHeight = pipeCenter - pipeSpace / 2f;
+	}
+
+	private void UpdatePrompt()
+	{
+		Prompt.text = $"Generation: {generation} | Agents alive: {birdsLeft} | Time: {(DateTime.Now - startTime).TotalSeconds}s";
 	}
 
 	private void OnApplicationQuit()
