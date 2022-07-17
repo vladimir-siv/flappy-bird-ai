@@ -1,11 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
+using GrandIntelligence;
+
 public class GameController : MonoBehaviour
 {
+	private static Simulation simulation = null;
+	private static List<Agent> agents = null;
+	private static List<Bird> birds = null;
+	private static uint generation = 0u;
+
 	[SerializeField] private GameObject Bird = null;
 	[SerializeField] private GameObject Pipe = null;
 	[SerializeField] private Text GenerationText = null;
@@ -21,48 +29,70 @@ public class GameController : MonoBehaviour
 	private int birdsLeft;
 	private DateTime pipeSpawnTime;
 	private float pipeRespawnTimeout;
-	private bool saveRequest;
 
 	private void OnBirdTerminated()
 	{
-		if (--birdsLeft > 0) return;
-		Agents.Cycle();
+		--birdsLeft;
+		simulation.BirdTerminated(birdsLeft);
+		if (birdsLeft > 0) return;
 		SceneManager.LoadScene("Main");
 	}
 
 	private void Start()
 	{
-		GILibrary.Init();
-		Agents.Create(BirdCount);
+		if (simulation == null)
+		{
+			GICore.Init(new Spec(GrandIntelligence.DeviceType.Cpu));
+
+			birds = new List<Bird>(BirdCount);
+			agents = new List<Agent>(BirdCount);
+
+			for (var i = 0; i < BirdCount; ++i)
+			{
+				birds.Add(null);
+				agents.Add(new Agent());
+			}
+
+			simulation = new Simulation();
+			simulation.Begin(agents);
+		}
 
 		birdsLeft = BirdCount;
 
 		for (var i = 0; i < BirdCount; ++i)
 		{
 			var bird = Instantiate(Bird).GetComponent<Bird>();
-			bird.Terminated += OnBirdTerminated;
-			Agents.AssignBird(bird, i);
+			birds[i] = bird;
+
+			var index = i;
+			bird.Terminated += () =>
+			{
+				birds[index] = null;
+				OnBirdTerminated();
+			};
+
+			agents[i].AssignBird(bird);
 		}
 
 		pipeRespawnTimeout = 0f;
 		pipeSpawnTime = DateTime.Now;
 
 		Pipes.Clear();
-		Evolution.Begin();
 
-		GenerationText.text = $"Generation: {Agents.CurrentGeneration}";
+		GenerationText.text = $"Generation: {generation++}";
 	}
 
 	private void Update()
 	{
-		if (saveRequest ^ Input.GetKeyDown(KeyCode.S))
-		{
-			saveRequest = !saveRequest;
-			if (saveRequest) Agents.SaveExisting();
-		}
-
 		SpawnPipe();
-		Agents.Think();
+	}
+
+	private void FixedUpdate()
+	{
+		var pipe = Pipes.Peek();
+		for (var i = 0; i < agents.Count; ++i)
+			if (birds[i] != null)
+				agents[i].Think(pipe);
 	}
 
 	public void SpawnPipe()
@@ -83,6 +113,7 @@ public class GameController : MonoBehaviour
 
 	private void OnApplicationQuit()
 	{
-		GILibrary.Release();
+		simulation.End();
+		GICore.Release();
 	}
 }

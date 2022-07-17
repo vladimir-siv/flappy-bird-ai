@@ -17,13 +17,15 @@ public class Bird : MonoBehaviour
 	}
 
 	private DateTime jumpTime;
+	private DateTime spawnTime;
 
-	public event Action<Bird> Termination;
+	public TimeSpan TimeSinceSpawned => DateTime.Now - spawnTime;
 	public event Action Terminated;
 
 	private void Start()
 	{
 		jumpTime = DateTime.Now.AddMilliseconds(-JumpDelta);
+		spawnTime = DateTime.Now;
 	}
 
 	public void Jump()
@@ -35,8 +37,7 @@ public class Bird : MonoBehaviour
 
 	public void Terminate()
 	{
-		Termination?.Invoke(this);
-		Destroy(gameObject);
 		Terminated?.Invoke();
+		Destroy(gameObject);
 	}
 }
