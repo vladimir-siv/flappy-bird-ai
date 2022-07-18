@@ -55,6 +55,7 @@ public class GameController : MonoBehaviour
 		}
 
 		birdsLeft = BirdCount;
+		simulation.EpisodeStart();
 
 		for (var i = 0; i < BirdCount; ++i)
 		{
@@ -79,7 +80,6 @@ public class GameController : MonoBehaviour
 		Pipes.Clear();
 
 		++generation;
-		simulation.EpisodeStart();
 
 		UpdatePrompt();
 	}

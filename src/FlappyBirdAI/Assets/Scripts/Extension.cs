@@ -29,7 +29,7 @@ public static class Extension
 		);
 	}
 
-	public static void Randomize(this BasicBrain brain, float min = -1.0f, float max = +1.0f, Distribution distribution = Distribution.Uniform)
+	public static void Randomize(this BasicBrain brain, float min, float max, Distribution distribution)
 	{
 		using (var randomize = Device.Active.Prepare("randomize"))
 		using (var it = new NeuralIterator())
