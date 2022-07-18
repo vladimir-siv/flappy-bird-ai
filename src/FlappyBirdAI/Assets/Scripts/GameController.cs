@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,8 +9,8 @@ using GrandIntelligence;
 public class GameController : MonoBehaviour
 {
 	private static Simulation simulation = null;
-	private static List<Agent> agents = null;
-	private static List<Bird> birds = null;
+	private static Agent[] agents = null;
+	private static Bird[] birds = null;
 	private static uint generation = 0u;
 
 	[SerializeField] private GameObject Bird = null;
@@ -46,14 +45,10 @@ public class GameController : MonoBehaviour
 		{
 			GICore.Init(new Spec(GrandIntelligence.DeviceType.Cpu));
 
-			birds = new List<Bird>(BirdCount);
-			agents = new List<Agent>(BirdCount);
-
+			birds = new Bird[BirdCount];
+			agents = new Agent[BirdCount];
 			for (var i = 0; i < BirdCount; ++i)
-			{
-				birds.Add(null);
-				agents.Add(new Agent());
-			}
+				agents[i] = new Agent();
 
 			simulation = new Simulation();
 			simulation.Begin(agents);
@@ -66,14 +61,14 @@ public class GameController : MonoBehaviour
 			var bird = Instantiate(Bird).GetComponent<Bird>();
 			birds[i] = bird;
 
+			agents[i].AssignBird(bird);
+
 			var index = i;
 			bird.Terminated += () =>
 			{
 				birds[index] = null;
 				OnBirdTerminated();
 			};
-
-			agents[i].AssignBird(bird);
 		}
 
 		pipeRespawnTimeout = 0f;
@@ -84,7 +79,7 @@ public class GameController : MonoBehaviour
 		Pipes.Clear();
 
 		++generation;
-		simulation.Start();
+		simulation.EpisodeStart();
 
 		UpdatePrompt();
 	}
@@ -96,10 +91,9 @@ public class GameController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		var pipe = Pipes.Peek();
-		for (var i = 0; i < agents.Count; ++i)
+		for (var i = 0; i < agents.Length; ++i)
 			if (birds[i] != null)
-				agents[i].Think(pipe);
+				agents[i].Think();
 
 		UpdatePrompt();
 	}

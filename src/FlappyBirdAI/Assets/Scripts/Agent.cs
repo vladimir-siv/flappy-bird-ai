@@ -1,35 +1,6 @@
 ﻿using UnityEngine;
 using GrandIntelligence;
 
-public static class NeuralBrain
-{
-	public static NeuralBuilder Prototype { get; }
-
-	static NeuralBrain()
-	{
-		Prototype = new NeuralBuilder(Shape.As2D(1u, 5u));
-		Prototype.FCLayer(8u, ActivationFunction.ELU);
-		Prototype.FCLayer(2u, ActivationFunction.Sigmoid);
-	}
-
-	public static void Randomize(BasicBrain brain)
-	{
-		using (var randomize = Device.Active.Prepare("randomize"))
-		using (var it = new NeuralIterator())
-		{
-			randomize.Set('U');
-			randomize.Set(-1.0f, 0);
-			randomize.Set(+1.0f, 1);
-
-			for (var param = it.Begin(brain.NeuralNetwork); param != null; param = it.Next())
-			{
-				randomize.Set(param.Memory);
-				API.Wait(API.Invoke(randomize.Handle));
-			}
-		}
-	}
-}
-
 public sealed class Agent
 {
 	private readonly float[] inputCache = new float[5];
@@ -43,16 +14,18 @@ public sealed class Agent
 		bird.Terminated += BirdTerminated;
 	}
 
-	public void Think(Pipe nearest)
+	public void Think()
 	{
+		var pipe = Pipes.Peek();
+
 		inputCache[0] = (bird.transform.position.y - 25.5f) / 9f;
 		inputCache[1] = bird.body.velocity.y / 10f;
 
-		if (nearest != null)
+		if (pipe != null)
 		{
-			inputCache[2] = (nearest.transform.position.x - 20.5f) / 14f;
-			inputCache[3] = (nearest.UpperY - 25.5f) / 9f;
-			inputCache[4] = (nearest.LowerY - 25.5f) / 9f;
+			inputCache[2] = (pipe.transform.position.x - 20.5f) / 14f;
+			inputCache[3] = (pipe.UpperY - 25.5f) / 9f;
+			inputCache[4] = (pipe.LowerY - 25.5f) / 9f;
 		}
 		else
 		{

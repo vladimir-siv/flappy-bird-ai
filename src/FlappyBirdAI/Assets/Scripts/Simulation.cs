@@ -1,20 +1,23 @@
-﻿using System.Collections.Generic;
-using GrandIntelligence;
+﻿using GrandIntelligence;
 
 public class Simulation
 {
-	private List<Agent> agents = null;
+	private Agent[] agents = null;
 	private DarwinBgea evolution = null;
 
-	public void Begin(List<Agent> agents)
+	public void Begin(Agent[] agents)
 	{
 		this.agents = agents;
 
-		var firstGen = new Population((uint)agents.Count);
-		for (var i = 0; i < agents.Count; ++i)
+		var prototype = new NeuralBuilder(Shape.As2D(1u, 5u));
+		prototype.FCLayer(8u, ActivationFunction.ELU);
+		prototype.FCLayer(2u, ActivationFunction.Sigmoid);
+
+		var firstGen = new Population((uint)agents.Length);
+		for (var i = 0; i < agents.Length; ++i)
 		{
-			var brain = new BasicBrain(NeuralBrain.Prototype);
-			NeuralBrain.Randomize(brain);
+			var brain = new BasicBrain(prototype);
+			brain.Randomize(-1.0f, 1.0f, Distribution.Uniform);
 			firstGen.Add(brain);
 		}
 
@@ -26,11 +29,16 @@ public class Simulation
 			generations: 1000u,
 			mutation: 15.0f
 		);
+
+		prototype.Dispose();
 	}
 
-	public void Start()
+	public void EpisodeStart()
 	{
-		PopulateAgentsWithBrains();
+		for (var i = 0; i < agents.Length; ++i)
+		{
+			agents[i].Brain = (BasicBrain)evolution.Generation[(uint)i];
+		}
 	}
 
 	public void BirdTerminated(int birdsLeft)
@@ -38,21 +46,11 @@ public class Simulation
 		if (birdsLeft == 0)
 		{
 			evolution.Cycle();
-			PopulateAgentsWithBrains();
-		}
-	}
-
-	private void PopulateAgentsWithBrains()
-	{
-		for (var i = 0; i < agents.Count; ++i)
-		{
-			agents[i].Brain = (BasicBrain)evolution.Generation[(uint)i];
 		}
 	}
 
 	public void End()
 	{
-		NeuralBrain.Prototype?.Dispose();
 		evolution?.Dispose();
 	}
 }
